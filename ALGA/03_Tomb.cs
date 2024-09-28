@@ -228,7 +228,7 @@ namespace OE.ALGA.Adatszerkezetek
 
         public IEnumerator GetEnumerator()
         {
-            throw new NotImplementedException();
+            return E.GetEnumerator();
         }
     }
 
