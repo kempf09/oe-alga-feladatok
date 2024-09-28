@@ -215,6 +215,7 @@ namespace OE.ALGA.Adatszerkezetek
             }
 
             n = n - db;
+            //miert nem commmitol
         }
 
         public void Bejar(Action<T> muvelet)
