@@ -233,50 +233,49 @@ namespace OE.ALGA.Adatszerkezetek
         }
     }
 
-    // public class TombListaBejaro<T> : IEnumerator<T>
-    // {
-    //     private TombLista<T> lista;
-    //     private int position = -1;
-    //
-    //     public TombListaBejaro(TombLista<T> lista)
-    //     {
-    //         this.lista = lista;
-    //     }
-    //     
-    //     
-    //     public bool MoveNext()
-    //     {
-    //         if (position < lista.Elemszam - 1)
-    //         {
-    //             position++;
-    //             return true;
-    //         }
-    //
-    //         return false;
-    //     }
-    //
-    //     public void Reset()
-    //     {
-    //         position = -1;
-    //     }
-    //
-    //     public T Current
-    //     {
-    //         
-    //         get
-    //         {
-    //             if (position < 0 || position >= lista.Elemszam)
-    //             {
-    //                 throw new InvalidOperationException();
-    //             }
-    //             else return lista.E[position];
-    //             
-    //         }
-    //     }
-    //
-    //     object? IEnumerator.Current => Current;
-    //
-    //     public void Dispose(){}
-    //     
-    // }
+    public class TombListaBejaro<T> : IEnumerator<T>
+    {
+        private T[] lista;
+        private int n;
+        private int position = -1;
+    
+        public TombListaBejaro(T[] lista, int n)
+        {
+            this.lista = lista;
+            this.n = n;
+        }
+        
+        
+        public bool MoveNext()
+        {
+            if (position < n - 1)
+            {
+                position++;
+                return true;
+            }
+    
+            return false;
+        }
+    
+        public void Reset()
+        {
+            position = -1;
+        }
+    
+        public T Current
+        {
+            
+            get
+            {
+                
+                return lista[position];
+                
+            }
+        }
+    
+        object? IEnumerator.Current => Current;
+    
+        public void Dispose(){}
+        
+    }
 }

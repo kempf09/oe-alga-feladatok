@@ -1,13 +1,30 @@
 using OE.ALGA.Paradigmak;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace OE.ALGA.Paradigmak
 {
 
 
 
-    public class FeltetelesFeladatTarolo<T> : FeladatTarolo<T> where T : IVegrehajthato
+    public class FeltetelesFeladatTarolo<T> : FeladatTarolo<T>, IEnumerable<T> where T : IVegrehajthato
     {
-        public Func<T, bool> BejaroFeltetel { get; set; }
+        public Func<T, bool> BejaroFeltetel
+        {
+            get
+            {
+                return BejaroFeltetel;
+            }
+            set
+            {
+                BejaroFeltetel = x => true;
+            }
+            
+        }
         
         
     
@@ -17,22 +34,32 @@ namespace OE.ALGA.Paradigmak
 
         }
 
+        public new IEnumerator<T> GetEnumerator()
+        {
+            FeltetelesFeladatTaroloBejaro<T> bejaro = new FeltetelesFeladatTaroloBejaro<T>(BejaroFeltetel, base.tarolo, base.n);
+            return bejaro;
+        }
+
         
 
-        public void FeltetelesVegrehajtas(Predicate<T> feltetel)
+        public void FeltetelesVegrehajtas(Func<T,bool> feltetel)
         {
             for (int i = 0; i < n; i++)
             {
 
-                if (feltetel(tarolo[i]))
+                if (feltetel.Invoke(tarolo[i]))
                 {
-                    tarolo[i].Vegrehajtas();
+                    if (tarolo[i]!=null)
+                    {
+                        tarolo[i]?.Vegrehajtas();  
+                    }
+                    
                 }
             }
         }
     }
 
-    public class FeltetelesFeladatTaroloBejaro<T> 
+    public class FeltetelesFeladatTaroloBejaro<T> : IEnumerator<T>
     {
 
         T[] tarolo;
@@ -43,7 +70,7 @@ namespace OE.ALGA.Paradigmak
         
 
 
-        public FeltetelesFeladatTaroloBejaro(T[] tarolo, int n, Func<T,bool> feltetel )
+        public FeltetelesFeladatTaroloBejaro(Func<T,bool> feltetel,T[] tarolo, int n  )
         {
             this.tarolo = tarolo;
             this.n = n;
@@ -52,12 +79,24 @@ namespace OE.ALGA.Paradigmak
 
         public T Current
         {
-            get { return tarolo[aktualisIndex]; }
+            get
+            {
+                if (Feltetel.Invoke(tarolo[aktualisIndex]))
+                { 
+                    return tarolo[aktualisIndex];
+                }
+                else 
+                {
+                    MoveNext();
+                    return tarolo[aktualisIndex];
+                }
+            }
         }
-
+        
+        object IEnumerator.Current=>Current;
         public bool MoveNext()
         {
-            if (aktualisIndex < n - 1 && Feltetel(tarolo[aktualisIndex]))
+            if (aktualisIndex < n - 1)
             {
                 aktualisIndex++;
                 return true;
