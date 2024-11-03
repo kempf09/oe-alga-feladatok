@@ -4,8 +4,8 @@ namespace OE.ALGA.Optimalizalas
     {
         public int n { get; }// pakolhato targyak szama
         public int Wmax { get; }//hatizsak merete
-        private readonly int[] w; // targyak sulyai
-        private readonly float[] p; // targyak ertekei
+        public int[] w; // targyak sulyai
+        public float[] p; // targyak ertekei
 
         public HatizsakProblema(int n, int Wmax, int[] w, float[] p)
         {
