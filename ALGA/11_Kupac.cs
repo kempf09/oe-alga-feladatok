@@ -1,176 +1,143 @@
-namespace OE.ALGA.Adatszerkezetek;
-
-public class Kupac<T>
+namespace OE.ALGA.Adatszerkezetek
 {
-    // Protected fields
-    protected T[] E;
-    protected int n;
-    protected Func<T, T, bool> nagyobbPrioritas;
-
-    // Constructor
-    public Kupac(T[] input, int countElem, Func<T, T, bool> nagyobbPrioritas)
+    public class Kupac<T>
     {
-        E = input;
-        n = countElem;
-        this.nagyobbPrioritas = nagyobbPrioritas;
-        KupacotEpit();
-    }
+        protected T[] E;
+        protected int n;
+        protected Func<T,T, bool> nagyobbPrioritas;
 
-    // Static methods for tree navigation
-    public static int Bal(int i) => 2 * i + 1;
-    public static int Jobb(int i) => 2 * i + 2;
-    public static int Szulo(int i) => (i - 1) / 2;
-
-    // Heapify a node at index i
-    public void Kupacol(int i)
-    {
-        int bal = Bal(i), jobb = Jobb(i), max = i;
-
-        // Check left child
-        if (bal < n && nagyobbPrioritas(E[bal], E[max]))
+        public Kupac(T[] e, int n, Func<T, T, bool> nagyobbPrioritas)
         {
-            max = bal;
+            E = e;
+            this.n = n;
+            this.nagyobbPrioritas = nagyobbPrioritas;
+            KupacotEpit();
         }
 
-        // Check right child
-        if (jobb < n && nagyobbPrioritas(E[jobb], E[max]))
+        public static int Bal(int i) => (i+1) * 2-1;
+        public static int Jobb(int i) => (i + 1) * 2;
+        
+        public static int Szulo(int i) => (int)Math.Floor((double)(i+1) / 2)-1;
+        
+
+        protected void Kupacol(int i)
         {
-            max = jobb;
+            int jobb = Jobb(i);int max = i; int bal = Bal(i);
+            
+            if (bal < n && nagyobbPrioritas(E[bal], E[max]))
+            {
+                max = bal;
+            }
+            if (jobb < n && nagyobbPrioritas(E[jobb], E[max]))
+            {
+                max = jobb;
+            }
+            if(max != i)
+            {
+                T puff = E[i];
+                E[i] = E[max];
+                E[max] = puff;
+                Kupacol(max);
+            }
         }
 
-        // If max is not the current node, swap and recurse
-        if (max != i)
+      
+        protected void KupacotEpit()
         {
-            var temp = E[i];
-            E[i] = E[max];
-            E[max] = temp;
-            Kupacol(max);
-        }
-    }
-
-    // Build the heap
-    public void KupacotEpit()
-    {
-        for (int i = n / 2 - 1; i >= 0; i--)
-        {
-            Kupacol(i);
+            for (int i=n/2; i >= 1; i--) 
+            {
+                Kupacol(i-1);
+            }
         }
     }
-}
+    //########################################################################
+//──────▄▀▄─────▄▀▄
+//─────▄█░░▀▀▀▀▀░░█▄
+//─▄▄──█░░░░░░░░░░░█──▄▄
+//█▄▄█─█░░▀░░┬░░▀░░█─█▄▄█
 //########################################################################
+
+    public class KupacRendezes<T> : Kupac<T> where T : IComparable
+    {
+        public KupacRendezes(T[] e) : base(e, e.Length, (a,b) => a.CompareTo(b) == 1)
+        { }
+
+        public void Rendezes()
+        {
+            for (int i = n-1; i >= 0; i--)
+            {
+                T puff = E[i];
+                E[i] = E[0];
+                E[0] = puff;
+                n--;
+                Kupacol(0);
+            }
+        }
+    } 
+    //########################################################################
 // ########################───▄▄─▄████▄▐▄▄▄▌##############################
 // ########################──▐──████▀███▄█▄▌##############################
 // ########################▐─▌──█▀▌──▐▀▌▀█▀ ##############################
 // ########################─▀───▌─▌──▐─▌    ##############################
 // ########################─────█─█──▐▌█    ##############################
 //########################################################################
-public class KupacRendezes<T> : Kupac<T> where T : IComparable<T>
-{
-    // Constructor
-    public KupacRendezes(T[] E) : base(E, E.Length, (x, y) => x.CompareTo(y) > 0)
-    {
-    }
 
-    // Sorting method
-    public void Rendezes()
+    public class KupacPrioritasosSor<T> : Kupac<T>, PrioritasosSor<T> 
     {
-        KupacotEpit(); // Build the heap
-        for (int i = n - 1; i > 0; i--)
+        public KupacPrioritasosSor(int meret, Func<T,T,bool> prioritas) : base(new T[meret], 0, prioritas)
         {
-            // Swap the root with the last element
-            var temp = E[0];
-            E[0] = E[i];
-            E[i] = temp;
-
-            // Reduce the heap size and re-heapify
-            n--;
-            Kupacol(0);
-        }
-    }
-}
-//########################################################################
-//──────▄▀▄─────▄▀▄
-//─────▄█░░▀▀▀▀▀░░█▄
-//─▄▄──█░░░░░░░░░░░█──▄▄
-//█▄▄█─█░░▀░░┬░░▀░░█─█▄▄█
-//########################################################################
-public class KupacPrioritasosSor<T> : Kupac<T>, PrioritasosSor<T>
-{
-    // Constructor
-    public KupacPrioritasosSor(int meret, Func<T, T, bool> nagyobbPrioritas)
-        : base(new T[meret], 0, nagyobbPrioritas)
-    {
-    }
-
-    // Move a key upward in the heap
-    private void KulcsotFelvisz(int i)
-    {
-        int sz = Szulo(i);
-
-        if (sz >= 0 && nagyobbPrioritas(E[i], E[sz]))
-        {
-            var temp = E[sz];
-            E[sz] = E[i];
-            E[i] = temp;
-            KulcsotFelvisz(sz);
-        }
-    }
-
-    // Check if the queue is empty
-    public bool Ures => n == 0;
-
-    // Insert a value into the queue
-    public void Sorba(T ertek)
-    {
-        if (n < E.Length)
-        {
-            E[n] = ertek;
-            KulcsotFelvisz(n);
-            n++;
-        }
-        else throw new NincsHelyKivetel();
-    }
-
-    // Remove and return the highest-priority element
-    public T Sorbol()
-    {
-        if (!Ures)
-        {
-            var max = E[0];
-            E[0] = E[n - 1];
-            n--;
-            Kupacol(0);
-            return max;
-        }
-        else throw new NincsElemKivetel();
-    }
-
-    // Get the highest-priority element without removing it
-    public T Elso()
-    {
-        if (!Ures) return E[0];
-        throw new NincsElemKivetel();
-    }
-
-    // Update a specific element in the heap
-    public void Frissit(T elem)
-    {
-        int i = 0;
-        while (i < n && !E[i].Equals(elem))
-        {
-            i++;
         }
 
-        if (i < n)
+        public bool Ures { get { return n == 0; } }
+
+        public T Elso()
         {
+            if (Ures) { throw new NincsElemKivetel(); }
+            return E[0];
+        }
+
+        public void Frissit(T elem)
+        {
+            int i;
+            for(i = 0; i < n && !(E[i].Equals(elem));)
+            { i++; }
+            if(n<=i) throw new NincsElemKivetel();
             KulcsotFelvisz(i);
             Kupacol(i);
         }
-        else throw new NincsElemKivetel();
+
+        public void KulcsotFelvisz(int i)
+        {
+            int szulo = Szulo(i);
+            if(szulo >= 0 && nagyobbPrioritas(E[i], E[szulo]))
+            {
+                T puff = E[i];
+                E[i] = E[szulo];
+                E[szulo] = puff;
+                KulcsotFelvisz(szulo);
+            }
+        }
+
+        public void Sorba(T ertek)
+        {
+            if (n >= E.Length ) { throw new NincsHelyKivetel(); }
+            else
+            {
+                E[n] = ertek;
+                n++;
+                KulcsotFelvisz(n-1);
+            }
+        }
+
+        public T Sorbol()
+        {
+            if (Ures) throw new NincsElemKivetel();
+
+            T kimenet = E[0];
+            E[0] = E[n - 1];
+            n--;
+            Kupacol(0);
+            return kimenet;
+        }
     }
 }
-    
-    
-    
-
-
